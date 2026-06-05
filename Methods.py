@@ -41,8 +41,8 @@ def RaylK(A,x):
 
 
 def powerMethod(A, x, max_steps = MAX_STEPS, tol = TOL):
-    """Takes: square matrix A, aprox of dominant eigen vector x, n number of lambdas, inverse diferentiates between inverse or norma method
-    Returns: n dominant lambda values (or n least dominant lambda values if inverse = True)"""
+    """Takes: square matrix A, aprox of dominant eigen vector x, n number of lambdas
+    Returns: dominant lambda value"""
     x = np.asarray(x, dtype = float);
 
     for _ in range(max_steps):
@@ -55,20 +55,39 @@ def powerMethod(A, x, max_steps = MAX_STEPS, tol = TOL):
     warn("Max steps reached")
     return (lamb, x)
 
+def inversePowerMethod(A, x, sigma, max_steps = MAX_STEPS, tol = TOL):
+    """Takes: square matrix A, aprox of dominant eigen vector x, n number of lambdas
+    Returns: lambda value closest to sigma aporksimation value"""
+    x = np.asarray(x, dtype = float);
+    x = x/np.linalg.norm(x)
+    n = len(A);
+    A_start = A.copy();
+    A = (A - sigma * np.identity(n));
+    lamb = sigma;
+
+    for _ in range(max_steps):
+        try:
+            x = np.linalg.solve(A, x)
+        except np.linalg.LinAlgError:
+            warn("sigma was the exact eigen value -> x is not correct")
+            return (sigma, x)
+        
+        x = x/np.linalg.norm(x);
+
+        lamb = RaylK(A_start,x);
+        
+        if np.linalg.norm(A_start @ x - lamb * x) < tol:
+             return (lamb, x)
+        
+    warn("Max steps reached")
+    return (lamb, x)
+
 A = np.array([[1, 0], [4, 8]]);
 x = np.transpose(np.array([1, -2]));
-print(powerMethod(A, x))
+print(inversePowerMethod(A, x, 2))
 
 
 
         
-
-
-
-def f(x):
-    return np.array([x[0]**2 +x[1]**2 -10*x[0] + x[1]-1, x[0]**2 - x[1]**2 -1*x[0] + 10*x[1]-25])
-
-#F = f
-#print(GaussNewton(F, np.array([9,-3])))
 
 
