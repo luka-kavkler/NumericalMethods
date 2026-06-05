@@ -82,10 +82,20 @@ def inversePowerMethod(A, x, sigma, max_steps = MAX_STEPS, tol = TOL):
     warn("Max steps reached")
     return (lamb, x)
 
+
+def singularMatrixAproximation(A, k):
+    """Aproksimates matrix A, with the best possible matrix of rang k"""
+    U, s, Vh = scipy.linalg.svd(A);
+    A_ = np.zeros(np.shape(A));
+
+    A_ = U[:, :k] @ np.diag(s[:k]) @ Vh[:k, :];
+    
+    return A_
+
 A = np.array([[1, 0], [4, 8]]);
 x = np.transpose(np.array([1, -2]));
 print(inversePowerMethod(A, x, 2))
-
+print(singularMatrixAproximation(A, 1))
 
 
         
