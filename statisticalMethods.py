@@ -107,7 +107,4 @@ def comparativeF_Test(X, Y, alpha):
     return asumptionDenial, pValue;
 
 
-X = [1, 2, 3, 4 , 5];
-Y = [2, 6, 7, 9, 11];
-print(T_Test(X, 1, 0.05));
-f, R = linearRegresion(X, Y);
+

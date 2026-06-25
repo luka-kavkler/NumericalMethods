@@ -100,11 +100,15 @@ def inversePowerMethod(A, x, sigma, max_steps = MAX_STEPS, tol = TOL):
 def singularMatrixAproximation(A, k):
     """Aproksimates matrix A, with the best possible matrix of rang k"""
     U, s, Vh = scipy.linalg.svd(A);
-    A_ = np.zeros(np.shape(A));
+    A_k = np.zeros(np.shape(A));
+    k = min(k, min(A.shape));
 
-    A_ = U[:, :k] @ np.diag(s[:k]) @ Vh[:k, :];
+    A_k = U[:, :k] @ np.diag(s[:k]) @ Vh[:k, :];
 
-    return A_
+    return A_k
+
+
+
 
 
 def predeterminedSystemFunction(X, Y, F):
@@ -139,13 +143,41 @@ def predeterminedSystem(A,b):
     z = np.linalg.solve(R, np.transpose(Q) @ b);
     return z;
 
-
-X = [0.21, 0.66, 0.93, 1.25, 1.75, 2.03, 2.24, 2.57, 2.87, 2.98];
-Y = [0.25, -0.27, -1.12, -0.45, 0.28, 0.13, -0.27, 0.26, 0.58, 1.03];
-F = [math.exp, math.log, math.sin, math.cos];
-
-print(predeterminedSystem(X,Y,F))
-
         
+def TSVD_Regularization(A, b, k):
+    """Returns x for a highly sensitive square matrix A and 
+    a non exact solution vector b, using severed singular decomposition with range k"""
+    A = np.array(A, dtype=float);
+    b = np.array(b, dtype=float)
 
+    U, s, Vh = scipy.linalg.svd(A);
+    V = np.transpose(Vh)
+    
+    x = b*0
+
+    for i in range(len(b)):
+        filter_factor = 1 if i<k else 0;
+        x+= np.dot(U[:, i],b)/s[i] * V[:, i] * filter_factor;
+
+
+    return x
+
+
+def tihnRegularization(A, b, alpha):
+    """Returns x for a highly sensitive square matrix A and 
+    a non exact solution vector b, using tihns filter factors"""
+    A = np.array(A, dtype=float);
+    b = np.array(b, dtype=float)
+
+    U, s, Vh = scipy.linalg.svd(A);
+    V = np.transpose(Vh)
+    
+    x = b*0
+
+    for i in range(len(b)):
+        filter_factor = s[i]**2/(s[i]**2 + alpha**2);
+        x+= np.dot(U[:, i],b)/s[i] * V[:, i] * filter_factor;
+
+
+    return x
 
